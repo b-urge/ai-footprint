@@ -17,38 +17,47 @@ async function updateBadge(waterMl: number, messageCount = 0): Promise<void> {
     else if (waterMl < 1000) label = `${Math.round(waterMl)}`;
     else label = `${(waterMl / 1000).toFixed(1)}k`;
   } else if (messageCount > 0) {
-    // Tracked messages but sub-milliliter total — still show activity
     label = "<1";
   }
   await chrome.action.setBadgeText({ text: label });
   await chrome.action.setBadgeBackgroundColor({
-    color: messageCount > 0 || waterMl > 0 ? badgeColor(Math.max(waterMl, 1)) : "#64748B",
+    color:
+      messageCount > 0 || waterMl > 0
+        ? badgeColor(Math.max(waterMl, 1))
+        : "#64748B",
   });
+}
+
+async function recordText(site: "chatgpt" | "claude", text: string): Promise<void> {
+  const settings = await getSettings();
+  const modelId = SITE_DEFAULT_MODEL[site] ?? settings.defaultModelId;
+  const tokens = estimateTokens(text);
+  if (tokens < 1) return;
+  const impact = calculateImpact(tokens, modelId);
+  const stats = await addMessageImpact(
+    impact.tokens,
+    impact.waterMl,
+    impact.energyWh,
+    impact.co2Grams
+  );
+  await updateBadge(stats.waterMl, stats.messageCount);
 }
 
 chrome.runtime.onMessage.addListener(
   (message: ExtensionMessage, _sender, sendResponse) => {
-    if (message.type !== "ASSISTANT_MESSAGE") return;
-
     void (async () => {
-      const settings = await getSettings();
-      const modelId = SITE_DEFAULT_MODEL[message.site] ?? settings.defaultModelId;
-      const tokens = estimateTokens(message.text);
-      if (tokens < 1) {
+      try {
+        if (message.type === "ASSISTANT_MESSAGE" || message.type === "SYNC_CHAT") {
+          await recordText(message.site, message.text);
+          const stats = await getTodayStats();
+          sendResponse({ ok: true, stats });
+          return;
+        }
         sendResponse({ ok: false });
-        return;
+      } catch {
+        sendResponse({ ok: false });
       }
-      const impact = calculateImpact(tokens, modelId);
-      const stats = await addMessageImpact(
-        impact.tokens,
-        impact.waterMl,
-        impact.energyWh,
-        impact.co2Grams
-      );
-      await updateBadge(stats.waterMl, stats.messageCount);
-      sendResponse({ ok: true, stats });
     })();
-
     return true;
   }
 );

@@ -1,4 +1,3 @@
-import { startAssistantObserver } from "./domObserver";
-import { collectClaudeTurns } from "./turnCollector";
+import { startClaudeSnapshotTracker } from "./claudeSnapshot";
 
-startAssistantObserver("claude", collectClaudeTurns);
+startClaudeSnapshotTracker("claude");

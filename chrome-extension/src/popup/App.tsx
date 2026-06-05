@@ -11,6 +11,8 @@ function formatNum(n: number, dp = 1): string {
 
 export function App() {
   const [stats, setStats] = useState<DailyStats | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncNote, setSyncNote] = useState("");
 
   const load = () => {
     void getTodayStats().then(setStats);
@@ -40,6 +42,69 @@ export function App() {
   const dateLabel = stats?.date ?? new Date().toISOString().slice(0, 10);
   const dashboardUrl = buildDashboardUrl(stats);
 
+  const syncFromActiveChat = async () => {
+    setSyncing(true);
+    setSyncNote("");
+    try {
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+      if (!tab?.id || !tab.url) {
+        setSyncNote("No active tab.");
+        setSyncing(false);
+        return;
+      }
+      const site = tab.url.includes("claude.ai")
+        ? "claude"
+        : tab.url.includes("chatgpt.com") || tab.url.includes("chat.openai.com")
+          ? "chatgpt"
+          : null;
+      if (!site) {
+        setSyncNote("Open Claude or ChatGPT, then try again.");
+        setSyncing(false);
+        return;
+      }
+
+      const [{ result }] = await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: () => {
+          const root =
+            document.querySelector("main") ??
+            document.querySelector('[role="main"]') ??
+            document.body;
+          return (root as HTMLElement).innerText?.trim() ?? "";
+        },
+      });
+
+      const text = String(result ?? "");
+      if (text.length < 40) {
+        setSyncNote("Page text too short — open a chat with a reply visible.");
+        setSyncing(false);
+        return;
+      }
+
+      const tail = text.slice(-12000);
+      chrome.runtime.sendMessage(
+        { type: "SYNC_CHAT", text: tail, site },
+        (res) => {
+          if (chrome.runtime.lastError) {
+            setSyncNote(chrome.runtime.lastError.message ?? "Sync failed.");
+          } else if (res?.stats) {
+            setStats(res.stats as DailyStats);
+            setSyncNote("Synced from this chat.");
+          } else {
+            setSyncNote("Sync failed — reload extension and try again.");
+          }
+          setSyncing(false);
+        }
+      );
+    } catch {
+      setSyncNote("Could not read this tab.");
+      setSyncing(false);
+    }
+  };
+
   return (
     <div className="popup">
       <div className="popup-header">
@@ -48,11 +113,25 @@ export function App() {
       </div>
       <p className="popup-date">Today · {dateLabel}</p>
 
+      <button
+        type="button"
+        className="btn-primary"
+        style={{ marginBottom: 10 }}
+        disabled={syncing}
+        onClick={() => void syncFromActiveChat()}
+      >
+        {syncing ? "Syncing…" : "Sync this chat now"}
+      </button>
+      {syncNote && (
+        <p className="popup-date" style={{ marginBottom: 8, color: "#10b981" }}>
+          {syncNote}
+        </p>
+      )}
+
       {!stats || stats.messageCount === 0 ? (
         <p className="empty">
-          Chat on ChatGPT or Claude. Each <strong>completed assistant reply</strong>{" "}
-          adds to today&apos;s total. The toolbar badge shows water (mL); small
-          replies may show <strong>&lt;1</strong>.
+          On Claude: click <strong>Sync this chat now</strong> after the answer
+          finishes (or wait for auto-track). Badge shows water (mL).
         </p>
       ) : (
         <>

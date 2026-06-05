@@ -1,20 +1,24 @@
 import type { ContentSite } from "../messages";
-import { isStreamingTurn, turnIdForElement } from "./turnCollector";
+import { turnIdForElement } from "./turnCollector";
 import { hasSeenTurn, markTurnSeen } from "../shared/seenTurns";
 
-function sendTrackedMessage(payload: {
-  type: "ASSISTANT_MESSAGE";
-  text: string;
-  site: ContentSite;
-  messageId: string;
-}): void {
-  try {
-    chrome.runtime.sendMessage(payload, () => {
-      void chrome.runtime.lastError;
-    });
-  } catch {
-    // Extension reloaded — ignore
+function sendTrackedMessage(
+  payload: {
+    type: "ASSISTANT_MESSAGE";
+    text: string;
+    site: ContentSite;
+    messageId: string;
   }
+): Promise<boolean> {
+  return new Promise((resolve) => {
+    try {
+      chrome.runtime.sendMessage(payload, (res) => {
+        resolve(!chrome.runtime.lastError && res?.ok === true);
+      });
+    } catch {
+      resolve(false);
+    }
+  });
 }
 
 export function startAssistantObserver(
@@ -33,20 +37,20 @@ export function startAssistantObserver(
     if (flushedLocal.has(messageId)) return;
     if (await hasSeenTurn(messageId)) return;
 
-    flushedLocal.add(messageId);
-    await markTurnSeen(messageId);
-    sendTrackedMessage({
+    const ok = await sendTrackedMessage({
       type: "ASSISTANT_MESSAGE",
       text,
       site,
       messageId,
     });
+    if (ok) {
+      flushedLocal.add(messageId);
+      await markTurnSeen(messageId);
+    }
   };
 
   const scan = () => {
     for (const el of collectTurns()) {
-      if (isStreamingTurn(el)) continue;
-
       const text = el.textContent?.trim() ?? "";
       if (text.length < 15) continue;
 
@@ -76,6 +80,5 @@ export function startAssistantObserver(
   });
 
   window.setInterval(scan, 2500);
-  window.setTimeout(scan, 1500);
-  window.setTimeout(scan, 4000);
+  window.setTimeout(scan, 2000);
 }

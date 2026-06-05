@@ -7,4 +7,10 @@ export interface AssistantMessagePayload {
   messageId: string;
 }
 
-export type ExtensionMessage = AssistantMessagePayload;
+export interface SyncChatPayload {
+  type: "SYNC_CHAT";
+  text: string;
+  site: ContentSite;
+}
+
+export type ExtensionMessage = AssistantMessagePayload | SyncChatPayload;
