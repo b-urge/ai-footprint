@@ -2,6 +2,9 @@
 
 **Every AI conversation has a hidden environmental cost. This makes it visible.**
 
+- **Live demo:** https://ai-footprint-plum.vercel.app
+- **Repository:** https://github.com/b-urge/ai-footprint
+
 Paste any AI conversation and instantly see its water usage, energy consumption,
 and CO2 emissions — with visceral real-world comparisons.
 
