@@ -130,8 +130,9 @@ export function App() {
 
       {!stats || stats.messageCount === 0 ? (
         <p className="empty">
-          On Claude: click <strong>Sync this chat now</strong> after the answer
-          finishes (or wait for auto-track). Badge shows water (mL).
+          Auto-tracks while Claude/ChatGPT writes (badge climbs during
+          generation). Use <strong>Sync this chat now</strong> if auto misses a
+          thread.
         </p>
       ) : (
         <>
@@ -204,6 +205,7 @@ export function App() {
           className="btn-secondary"
           onClick={() => {
             void resetTodayStats().then(setStats);
+            chrome.runtime.sendMessage({ type: "RESET_TAB_BASELINES" });
           }}
         >
           Reset today (demo)

@@ -1,4 +1,5 @@
-import { startAssistantObserver } from "./domObserver";
-import { collectChatGptTurns } from "./turnCollector";
+import { startSnapshotTracker } from "./snapshotTracker";
 
-startAssistantObserver("chatgpt", collectChatGptTurns);
+export function onExecute() {
+  startSnapshotTracker("chatgpt");
+}

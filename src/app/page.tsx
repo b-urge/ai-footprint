@@ -90,18 +90,37 @@ function HomeContent() {
       <BackgroundEffects />
       <main className="relative z-10 min-h-screen pb-8">
         <Header />
-        {extensionData && <ExtensionSession data={extensionData} />}
-        <ConversationInput
-          value={conversationText}
-          tokenCount={tokenCount}
-          onChange={setConversationText}
-          onTrySample={() => setConversationText(SAMPLE_CONVERSATION)}
-          onClear={() => setConversationText("")}
-        />
-        <ModelSelector
-          selectedModelId={selectedModelId}
-          onChange={setSelectedModelId}
-        />
+        {extensionData ? (
+          <ExtensionSession data={extensionData}>
+            <ConversationInput
+              value={conversationText}
+              tokenCount={tokenCount}
+              onChange={setConversationText}
+              onTrySample={() => setConversationText(SAMPLE_CONVERSATION)}
+              onClear={() => setConversationText("")}
+              className="px-0"
+            />
+            <ModelSelector
+              selectedModelId={selectedModelId}
+              onChange={setSelectedModelId}
+              className="mt-6 px-0"
+            />
+          </ExtensionSession>
+        ) : (
+          <>
+            <ConversationInput
+              value={conversationText}
+              tokenCount={tokenCount}
+              onChange={setConversationText}
+              onTrySample={() => setConversationText(SAMPLE_CONVERSATION)}
+              onClear={() => setConversationText("")}
+            />
+            <ModelSelector
+              selectedModelId={selectedModelId}
+              onChange={setSelectedModelId}
+            />
+          </>
+        )}
         {showPasteAnalysis && (
           <>
             <LiveMetrics impact={impact} comparisons={comparisons} />

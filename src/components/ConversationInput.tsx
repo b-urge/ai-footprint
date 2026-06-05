@@ -6,12 +6,20 @@ import { getDecimalPlaces } from "@/utils/format";
 
 const MAX_CHARS = 50_000;
 
+export interface ConversationInputSectionHeader {
+  title: string;
+  description?: string;
+}
+
 interface ConversationInputProps {
   value: string;
   tokenCount: number;
   onChange: (text: string) => void;
   onTrySample: () => void;
   onClear: () => void;
+  /** Extra top margin / spacing (e.g. below extension today’s stats). */
+  className?: string;
+  sectionHeader?: ConversationInputSectionHeader;
 }
 
 export function ConversationInput({
@@ -20,6 +28,8 @@ export function ConversationInput({
   onChange,
   onTrySample,
   onClear,
+  className = "",
+  sectionHeader,
 }: ConversationInputProps) {
   const animatedTokens = useAnimatedValue(
     tokenCount,
@@ -52,8 +62,20 @@ export function ConversationInput({
   };
 
   return (
-    <section className="px-4 sm:px-8">
+    <section className={`px-4 sm:px-8 ${className}`.trim()}>
       <div className="mx-auto w-full max-w-6xl">
+        {sectionHeader && (
+          <header className="mb-8 sm:mb-10">
+            <h2 className="font-display text-xs font-bold tracking-widest text-text-muted">
+              {sectionHeader.title}
+            </h2>
+            {sectionHeader.description && (
+              <p className="mt-2 max-w-2xl font-body text-sm font-light leading-relaxed text-text-secondary">
+                {sectionHeader.description}
+              </p>
+            )}
+          </header>
+        )}
         <label htmlFor="conversation" className="sr-only">
           Paste an AI conversation
         </label>
@@ -66,7 +88,7 @@ export function ConversationInput({
           className="font-display min-h-[200px] w-full resize-y rounded-lg border border-border-subtle bg-bg-card/90 px-4 py-3 text-base text-text-primary backdrop-blur-sm outline-none transition-[border-color] duration-200 placeholder:font-light placeholder:text-text-muted focus:border-accent-green sm:text-sm"
           spellCheck={false}
         />
-        <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <div className="mt-5 flex flex-col gap-3 sm:mt-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-3 text-sm text-text-secondary sm:gap-4">
             <span
               ref={counterRef}

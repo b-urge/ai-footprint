@@ -1,5 +1,4 @@
 import type { ContentSite } from "../messages";
-import { simpleHash } from "./turnCollector";
 
 function getConversationText(): string {
   const root =
@@ -32,48 +31,72 @@ function sendMessage(
   });
 }
 
-/** Tracks new text appearing in the chat — works when DOM role attributes are missing. */
-export function startClaudeSnapshotTracker(site: ContentSite): void {
+/**
+ * Auto-tracks new chat text while Claude/ChatGPT streams a reply.
+ * Counts incremental slices so the badge climbs during generation, not only at the end.
+ */
+export function startSnapshotTracker(site: ContentSite): void {
   let recordedLen = 0;
   let ready = false;
   let flushTimer: ReturnType<typeof setTimeout> | null = null;
+  let lastFlushAt = 0;
+  let lastObservedLen = 0;
 
   const initBaseline = () => {
     recordedLen = getConversationText().length;
+    lastObservedLen = recordedLen;
     ready = true;
   };
 
-  setTimeout(initBaseline, 2000);
+  setTimeout(initBaseline, 800);
 
   const flush = async () => {
     if (!ready) return;
+    const now = Date.now();
+    if (now - lastFlushAt < 900) return;
+
     const full = getConversationText();
     if (full.length <= recordedLen) return;
 
     const chunk = full.slice(recordedLen).trim();
-    if (chunk.length < 20) return;
+    if (chunk.length < 12) return;
 
-    const messageId = `${site}:snap:${simpleHash(chunk.slice(0, 500))}:${chunk.length}`;
+    const messageId = `${site}:inc:${recordedLen}:${full.length}`;
     try {
       await sendMessage(site, chunk, messageId);
       recordedLen = full.length;
+      lastFlushAt = now;
     } catch {
-      // Service worker waking up — retry on next flush
+      // Service worker asleep — heartbeat will retry
     }
   };
 
-  const scheduleFlush = () => {
+  const scheduleFlush = (ms = 500) => {
     if (flushTimer) clearTimeout(flushTimer);
-    flushTimer = setTimeout(() => void flush(), 1600);
+    flushTimer = setTimeout(() => void flush(), ms);
   };
 
   setInterval(() => {
     if (!ready) return;
     const len = getConversationText().length;
-    if (len > recordedLen + 15) scheduleFlush();
-  }, 700);
+    const growing = len > lastObservedLen;
+    lastObservedLen = len;
 
-  const observer = new MutationObserver(scheduleFlush);
+    if (len <= recordedLen + 12) return;
+
+    if (growing) {
+      void flush();
+    } else {
+      scheduleFlush(400);
+    }
+  }, 1200);
+
+  const observer = new MutationObserver(() => {
+    if (!ready) return;
+    const len = getConversationText().length;
+    if (len > recordedLen + 8) scheduleFlush(450);
+  });
+
   observer.observe(document.body, {
     childList: true,
     subtree: true,

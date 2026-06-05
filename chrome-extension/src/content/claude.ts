@@ -1,3 +1,5 @@
-import { startClaudeSnapshotTracker } from "./claudeSnapshot";
+import { startSnapshotTracker } from "./snapshotTracker";
 
-startClaudeSnapshotTracker("claude");
+export function onExecute() {
+  startSnapshotTracker("claude");
+}

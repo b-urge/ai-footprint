@@ -5,16 +5,18 @@ import { MODELS } from "@/data/models";
 interface ModelSelectorProps {
   selectedModelId: string;
   onChange: (modelId: string) => void;
+  className?: string;
 }
 
 export function ModelSelector({
   selectedModelId,
   onChange,
+  className = "",
 }: ModelSelectorProps) {
   const selected = MODELS.find((m) => m.id === selectedModelId) ?? MODELS[0];
 
   return (
-    <section className="mt-4 px-4 sm:px-8">
+    <section className={`mt-4 px-4 sm:px-8 ${className}`.trim()}>
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <label
           htmlFor="model-select"
