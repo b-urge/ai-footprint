@@ -70,7 +70,7 @@ npx vercel --prod
 ## Contributors
 
 - [Katherine Burge](https://github.com/b-urge)
-- Muntaser Syed
+- [Muntaser Syed](https://github.com/jemsbhai)
 
 ## License
 
