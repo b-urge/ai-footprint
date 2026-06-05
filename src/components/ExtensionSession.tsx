@@ -43,14 +43,27 @@ export function ExtensionSession({ data }: ExtensionSessionProps) {
             CHROME EXTENSION · TODAY
           </p>
           <p className="mt-1 font-body text-sm font-light text-text-secondary">
-            Passive tracking from ChatGPT / Claude — {data.messageCount}{" "}
-            assistant {data.messageCount === 1 ? "message" : "messages"},{" "}
-            {data.tokens.toLocaleString()} tokens estimated today. Paste a
-            conversation below to analyze a specific chat in detail.
+            {data.messageCount > 0 ? (
+              <>
+                Passive tracking from ChatGPT / Claude — {data.messageCount}{" "}
+                assistant {data.messageCount === 1 ? "reply" : "replies"},{" "}
+                {data.tokens.toLocaleString()} tokens estimated today.
+              </>
+            ) : (
+              <>
+                Opened from the extension — no replies tracked yet today. Chat
+                on Claude or ChatGPT, then open the extension popup again.
+              </>
+            )}{" "}
+            Paste below to analyze one conversation in detail.
           </p>
         </div>
-        <LiveMetrics impact={impact} comparisons={comparisons} />
-        <Comparisons comparisons={comparisons} tokenCount={data.tokens} />
+        {data.messageCount > 0 && (
+          <>
+            <LiveMetrics impact={impact} comparisons={comparisons} />
+            <Comparisons comparisons={comparisons} tokenCount={data.tokens} />
+          </>
+        )}
       </div>
     </section>
   );

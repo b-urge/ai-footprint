@@ -27,14 +27,12 @@ function parseExtensionParams(
   params: URLSearchParams
 ): ExtensionSessionData | null {
   if (params.get("from") !== "extension") return null;
-  const messageCount = Number(params.get("messages") ?? 0);
-  if (messageCount < 1) return null;
   return {
     tokens: Number(params.get("tokens") ?? 0),
     waterMl: Number(params.get("water") ?? 0),
     energyWh: Number(params.get("energy") ?? 0),
     co2Grams: Number(params.get("co2") ?? 0),
-    messageCount,
+    messageCount: Number(params.get("messages") ?? 0),
     modelId: params.get("model") ?? "claude-sonnet",
   };
 }

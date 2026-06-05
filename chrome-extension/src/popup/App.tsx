@@ -109,6 +109,7 @@ export function App() {
           href={dashboardUrl}
           target="_blank"
           rel="noopener noreferrer"
+          title={dashboardUrl}
         >
           Open dashboard (today&apos;s stats)
         </a>

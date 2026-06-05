@@ -1,8 +1,5 @@
 import type { ContentSite } from "../messages";
-import {
-  isStreamingTurn,
-  turnIdForElement,
-} from "./turnCollector";
+import { isStreamingTurn, turnIdForElement } from "./turnCollector";
 import { hasSeenTurn, markTurnSeen } from "../shared/seenTurns";
 
 function sendTrackedMessage(payload: {
@@ -16,7 +13,7 @@ function sendTrackedMessage(payload: {
       void chrome.runtime.lastError;
     });
   } catch {
-    // Extension context invalidated after reload — ignore
+    // Extension reloaded — ignore
   }
 }
 
@@ -24,7 +21,7 @@ export function startAssistantObserver(
   site: ContentSite,
   collectTurns: () => Element[]
 ): void {
-  const pendingLocal = new Set<string>();
+  const flushedLocal = new Set<string>();
   const pending = new Map<
     string,
     { el: Element; timer: ReturnType<typeof setTimeout> }
@@ -32,11 +29,11 @@ export function startAssistantObserver(
 
   const flush = async (el: Element, messageId: string) => {
     const text = el.textContent?.trim() ?? "";
-    if (!text || text.length < 20) return;
-    if (pendingLocal.has(messageId)) return;
+    if (!text || text.length < 15) return;
+    if (flushedLocal.has(messageId)) return;
     if (await hasSeenTurn(messageId)) return;
 
-    pendingLocal.add(messageId);
+    flushedLocal.add(messageId);
     await markTurnSeen(messageId);
     sendTrackedMessage({
       type: "ASSISTANT_MESSAGE",
@@ -49,11 +46,12 @@ export function startAssistantObserver(
   const scan = () => {
     for (const el of collectTurns()) {
       if (isStreamingTurn(el)) continue;
+
       const text = el.textContent?.trim() ?? "";
-      if (text.length < 20) continue;
+      if (text.length < 15) continue;
 
       const messageId = turnIdForElement(el, site);
-      if (pendingLocal.has(messageId)) continue;
+      if (flushedLocal.has(messageId)) continue;
 
       const existing = pending.get(messageId);
       if (existing) clearTimeout(existing.timer);
@@ -62,9 +60,9 @@ export function startAssistantObserver(
         el,
         timer: setTimeout(() => {
           pending.delete(messageId);
-          if (!document.contains(el) || isStreamingTurn(el)) return;
+          if (!document.contains(el)) return;
           void flush(el, messageId);
-        }, 900),
+        }, 1000),
       });
     }
   };
@@ -77,6 +75,7 @@ export function startAssistantObserver(
     characterData: true,
   });
 
-  window.setInterval(scan, 3000);
-  window.setTimeout(scan, 2000);
+  window.setInterval(scan, 2500);
+  window.setTimeout(scan, 1500);
+  window.setTimeout(scan, 4000);
 }

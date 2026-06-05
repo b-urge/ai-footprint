@@ -1,4 +1,4 @@
 import { startAssistantObserver } from "./domObserver";
-import { collectAssistantTurns } from "./turnCollector";
+import { collectChatGptTurns } from "./turnCollector";
 
-startAssistantObserver("chatgpt", collectAssistantTurns);
+startAssistantObserver("chatgpt", collectChatGptTurns);
