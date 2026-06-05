@@ -67,6 +67,11 @@ npx vercel --prod
 - Historical tracking and monthly summaries
 - Cross-device sync with anonymized aggregate stats
 
+## Contributors
+
+- [Katherine Burge](https://github.com/b-urge)
+- Muntaser Syed
+
 ## License
 
 MIT
