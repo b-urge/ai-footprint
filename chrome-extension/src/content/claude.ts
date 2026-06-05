@@ -1,4 +1,4 @@
 import { startAssistantObserver } from "./domObserver";
-import { collectClaudeAssistantMessages } from "./claudeCollector";
+import { collectAssistantTurns } from "./turnCollector";
 
-startAssistantObserver("claude", collectClaudeAssistantMessages);
+startAssistantObserver("claude", collectAssistantTurns);

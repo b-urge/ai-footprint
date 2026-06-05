@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { generateComparisons } from "../shared/comparisons";
 import { buildDashboardUrl } from "../shared/dashboardUrl";
-import { getTodayStats, type DailyStats } from "../shared/storage";
+import { getTodayStats, resetTodayStats, type DailyStats } from "../shared/storage";
 
 function formatNum(n: number, dp = 1): string {
   if (n < 1) return n.toFixed(2);
@@ -75,7 +75,7 @@ export function App() {
           </div>
 
           <div className="meta">
-            <span>{stats.messageCount} assistant messages</span>
+            <span>{stats.messageCount} assistant replies</span>
             <span>{stats.tokens.toLocaleString()} tokens</span>
           </div>
 
@@ -118,6 +118,15 @@ export function App() {
           onClick={() => chrome.runtime.openOptionsPage()}
         >
           Model &amp; settings
+        </button>
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={() => {
+            void resetTodayStats().then(setStats);
+          }}
+        >
+          Reset today (demo)
         </button>
       </div>
     </div>

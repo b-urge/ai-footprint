@@ -17,7 +17,7 @@ export interface LifetimeStats {
   totalMessages: number;
 }
 
-const DEFAULT_SETTINGS: Settings = { defaultModelId: "claude-sonnet" };
+import { clearSeenTurns } from "./seenTurns";
 
 export function todayKey(): string {
   return new Date().toISOString().slice(0, 10);
@@ -84,4 +84,19 @@ export async function addMessageImpact(
   });
 
   return updated;
+}
+
+export async function resetTodayStats(): Promise<DailyStats> {
+  const date = todayKey();
+  const empty: DailyStats = {
+    date,
+    tokens: 0,
+    waterMl: 0,
+    energyWh: 0,
+    co2Grams: 0,
+    messageCount: 0,
+  };
+  await chrome.storage.local.set({ [dailyStorageKey(date)]: empty });
+  await clearSeenTurns();
+  return empty;
 }

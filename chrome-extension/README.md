@@ -19,7 +19,7 @@ Pairs with the web dashboard: https://ai-footprint-plum.vercel.app
 
 ## How it works
 
-- **Content scripts** watch the conversation DOM for completed assistant messages (1.2s stability debounce, skips streaming).
+- **Content scripts** watch the conversation DOM for completed **assistant turns** (one count per reply, not per inner card/markdown block). Stable for ~0.9s, skips streaming. Seen turn IDs are stored so the same reply is not double-counted on refresh.
 - **Service worker** estimates tokens, applies model multipliers, updates `chrome.storage.local` daily totals.
 - **Badge**: green &lt; 50 mL, amber 50–200 mL, red &gt; 200 mL water today.
 - **Popup**: today’s metrics + top comparisons + link to full dashboard.

@@ -63,3 +63,9 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 void refreshBadgeFromStorage();
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && Object.keys(changes).some((k) => k.startsWith("daily:"))) {
+    void refreshBadgeFromStorage();
+  }
+});
