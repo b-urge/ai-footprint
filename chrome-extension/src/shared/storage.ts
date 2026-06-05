@@ -1,3 +1,5 @@
+import { clearSeenTurns } from "./seenTurns";
+
 export interface DailyStats {
   date: string;
   tokens: number;
@@ -17,7 +19,7 @@ export interface LifetimeStats {
   totalMessages: number;
 }
 
-import { clearSeenTurns } from "./seenTurns";
+const DEFAULT_SETTINGS: Settings = { defaultModelId: "claude-sonnet" };
 
 export function todayKey(): string {
   return new Date().toISOString().slice(0, 10);
