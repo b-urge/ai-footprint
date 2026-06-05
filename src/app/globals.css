@@ -1,0 +1,195 @@
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #0a0e17;
+  --bg-secondary: #111827;
+  --bg-card: #1a1f2e;
+  --bg-card-hover: #222842;
+  --accent-water: #0ea5e9;
+  --accent-water-glow: #38bdf8;
+  --accent-energy: #f59e0b;
+  --accent-energy-glow: #fbbf24;
+  --accent-co2: #ef4444;
+  --accent-co2-glow: #f87171;
+  --accent-green: #10b981;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-subtle: #1e293b;
+  --font-display: var(--font-jetbrains-mono);
+  --font-body: var(--font-ibm-plex-sans);
+}
+
+@theme inline {
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-card: var(--bg-card);
+  --color-bg-card-hover: var(--bg-card-hover);
+  --color-accent-water: var(--accent-water);
+  --color-accent-water-glow: var(--accent-water-glow);
+  --color-accent-energy: var(--accent-energy);
+  --color-accent-energy-glow: var(--accent-energy-glow);
+  --color-accent-co2: var(--accent-co2);
+  --color-accent-co2-glow: var(--accent-co2-glow);
+  --color-accent-green: var(--accent-green);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border-subtle: var(--border-subtle);
+  --font-mono: var(--font-jetbrains-mono);
+  --font-sans: var(--font-ibm-plex-sans);
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes idle-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), ui-monospace, monospace;
+}
+
+.font-body {
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.gauge-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.gauge-fill {
+  transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.live-dot {
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+.idle-gauge {
+  animation: idle-pulse 3s ease-in-out infinite;
+}
+
+.header-gradient-border {
+  border-bottom: 1px solid transparent;
+  background:
+    linear-gradient(var(--bg-primary), var(--bg-primary)) padding-box,
+    linear-gradient(
+        90deg,
+        transparent,
+        var(--border-subtle),
+        transparent
+      )
+      border-box;
+}
+
+.glow-water {
+  box-shadow: 0 0 20px 8px color-mix(in srgb, var(--accent-water-glow) 25%, transparent);
+}
+
+.glow-energy {
+  box-shadow: 0 0 20px 8px color-mix(in srgb, var(--accent-energy-glow) 25%, transparent);
+}
+
+.glow-co2 {
+  box-shadow: 0 0 20px 8px color-mix(in srgb, var(--accent-co2-glow) 25%, transparent);
+}
+
+.bg-dot-grid {
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.03) 1px,
+    transparent 1px
+  );
+  background-size: 40px 40px;
+}
+
+.bg-noise-tile {
+  opacity: 0.02;
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+.scanline-sweep {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.15) 2px,
+    rgba(255, 255, 255, 0.15) 4px
+  );
+  animation: scanline 8s linear infinite;
+}
+
+.footer-gradient-border {
+  border-top: 1px solid transparent;
+  background:
+    linear-gradient(var(--bg-primary), var(--bg-primary)) padding-box,
+    linear-gradient(
+        90deg,
+        transparent,
+        var(--border-subtle),
+        transparent
+      )
+      border-box;
+}
+
+/* Typography defaults */
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.font-body {
+  font-variant-numeric: proportional-nums;
+}

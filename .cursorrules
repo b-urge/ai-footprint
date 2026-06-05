@@ -1,0 +1,23 @@
+You are building an AI environmental cost visualizer for a hackathon.
+
+Project rules:
+- React + TypeScript + Tailwind + Framer Motion. No backend.
+- Next.js App Router (src/app/). All pages are client components ("use client").
+- All state in React hooks (useState, useMemo). No external state management.
+- Dark theme using CSS custom properties defined in globals.css.
+- Color palette: bg-primary #0A0E17, accent-water #0EA5E9, accent-energy #F59E0B, accent-co2 #EF4444.
+- Fonts: JetBrains Mono for headings and numbers, IBM Plex Sans for body text.
+- All environmental constants live in src/data/constants.ts with source citations.
+- Token estimation uses 1 token = 4 chars (prose) or 3 chars (code) heuristic.
+- Animations use CSS transitions and requestAnimationFrame via useAnimatedValue hook.
+- Framer Motion only for entrance/exit animations (stagger, fade, slide).
+- Components are single-responsibility, max 150 lines each.
+- No placeholder content. Use real environmental data and real comparison metrics.
+- Mobile-first responsive design. Stack vertically on small screens.
+- Pre-load a sample AI conversation on mount so the app is never empty.
+- All numbers animate smoothly when values change (count-up lerp effect).
+- Comparison cards only render when their value >= 0.01.
+- File naming: PascalCase for components, camelCase for utils and hooks.
+- Use semantic HTML. Accessible contrast ratios on all text.
+- No console.log in committed code. No unused imports.
+- Keep bundle size small. No heavy animation libraries beyond Framer Motion.
